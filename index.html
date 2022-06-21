@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="format-detection" content="telephone=no"/>
+
+    <title>Pinkspit</title>
+    <meta name="description" content=""/>
+    <link href="assets/css/app.css" rel="stylesheet"/>
+</head>
+<body>
+
+
+<header class="header">
+    <div class="header-main container d-flex align-justify">
+        <a href="#" class="header-logo">
+            pinkspit
+        </a>
+        <div class="navbar">
+            <nav class="main-navigation">
+                <ul class="menu">
+                    <li class="menu-item  current-menu-item">
+                        <a href="">Page1</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="">Page2</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="">Page3</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="burger js-header">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</header>
+
+<main class="main">
+    <section class="s-introduce">
+        <div class="container-fluid">
+            <div class="row align-center align-middle s-introduce__inner">
+                <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-xs-12 d-flex align-middle test">
+                    <div id="root"></div>
+                </div>
+                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-xs-12">
+                    <h1 class="s-introduce__heading">Lorem ipsum dolor sit amet. Pinkspit </h1>
+                    <div class="s-introduce__desc">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur maximus gravida est dapibus
+                        tincidunt.
+                        Etiam fermentum fringilla felis.
+                    </div>
+
+                    <button class="btn btn-primary">order</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row copyright">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">pinkspit ® 2022</div>
+
+        </div>
+    </div>
+</footer>
+
+<script src="assets/js/jquery-3.6.0.min.js"></script>
+<script src="assets/js/js_app.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+
+        'use strict';
+
+        var c, currentScrollTop = 0,
+            navbar = $('.header');
+
+        $(window).scroll(function () {
+            var a = $(window).scrollTop();
+            var b = navbar.height();
+
+            currentScrollTop = a;
+
+            if (c < currentScrollTop && a > b) {
+                navbar.addClass("scrollUp");
+            } else if (c > currentScrollTop && !(a <= b)) {
+                navbar.removeClass("scrollUp");
+            }
+            c = currentScrollTop;
+
+        });
+
+    });
+</script>
+
+
+
+<script type="importmap">
+			{
+				"imports": {
+					"three": "./assets/js/three.module.js"
+				}
+			}
+
+</script>
+
+<script type="module">
+
+
+    import * as THREE from 'three';
+    import Stats from './assets/js/stats.module.js';
+    import {OrbitControls} from './assets/js/OrbitControls.js';
+    import {STLLoader} from './assets/js/STLLoader.js';
+
+    let stats;
+
+    let camera, scene, renderer;
+
+    const container = document.getElementById('root');
+    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 50, 250);
+    camera.position.z = 3;
+
+
+    scene = new THREE.Scene();
+    // Add lights
+    var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.51);
+    hemiLight.position.set(0, 50, 0);
+    // Add hemisphere light to scene
+    scene.add(hemiLight);
+
+    var dirLight = new THREE.DirectionalLight(0xffffff, 0.54);
+    dirLight.position.set(-8, 12, 8);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
+    // Add directional Light to scene
+    scene.add(dirLight);
+
+    // ASCII file
+    const envTexture = new THREE.CubeTextureLoader().load([
+        './assets/img/flower.jpg',
+        './assets/img/flower.jpg',
+        './assets/img/flower.jpg',
+        './assets/img/flower.jpg',
+        './assets/img/flower.jpg',
+        './assets/img/flower.jpg'
+    ])
+    envTexture.mapping = THREE.CubeReflectionMapping;
+    const loader = new STLLoader();
+    loader.load('./assets/img/PinkSpit.stl', function (geometry) {
+
+        const material = new THREE.MeshPhongMaterial({envMap: envTexture});
+        const mesh = new THREE.Mesh(geometry, material);
+
+        //  mesh.position.set( 0, - 0.25, 0.6 );
+        // mesh.rotation.set( 0, - Math.PI / 2, 0 );
+        //mesh.scale.set(1.2, 1.2, 1.2);
+
+        mesh.castShadow = false;
+        mesh.receiveShadow = false;
+
+        scene.add(mesh);
+
+    });
+
+
+    // Lights
+
+    scene.add(new THREE.HemisphereLight(0x443333, 0x111122));
+
+
+    // renderer
+
+    renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+
+    renderer.shadowMap.enabled = true;
+
+    container.appendChild(renderer.domElement);
+
+
+    //orbitControls
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = false;
+    controls.enableZoom = false;
+
+    // stats
+
+    stats = new Stats();
+    container.appendChild(stats.dom);
+
+    //
+
+
+/*
+
+    window.addEventListener('resize', onWindowResize);
+
+
+    function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        render();
+
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        controls.update();
+
+        render();
+
+        stats.update()
+    }
+
+    function render() {
+        renderer.render(scene, camera)
+    }
+
+    animate();*/
+
+    window.addEventListener('resize', onWindowResize);
+
+
+    function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        render();
+
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        controls.update();
+
+        render();
+
+        stats.update()
+    }
+
+    function render() {
+        renderer.render(scene, camera)
+    }
+
+    animate();
+</script>
+
+</body>
+</html>
